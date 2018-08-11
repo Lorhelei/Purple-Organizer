@@ -24,13 +24,11 @@ namespace ImBadAtNames
         string[,] albums = new string[10, 10];
         int tab = 0;
         int FramePos = 0;
+        Color botonIluminado = Color.FromArgb(66, 66, 76);
+        Color botonApagado = Color.FromArgb(55, 55, 64);
 
         int[] statesArray = new int[20]; //0: Glow | 1: Peak | 2: Fading | 3: Restarting | 4: Stop
 
-    
-        
-       
-    
         Thread btn1ActivatingAnimation;
         Thread btn2ActivatingAnimation;
         Thread btn3ActivatingAnimation;
@@ -45,6 +43,8 @@ namespace ImBadAtNames
         Thread btnUndoActivatingAnimation;
 
 
+
+
         public Form1()
         {
             InitializeComponent();
@@ -57,22 +57,30 @@ namespace ImBadAtNames
             fileDialog.ShowDialog();
             string folder;
 
-            folder = fileDialog.FileName;
-            if (Directory.Exists(folder))
+            try
             {
-                return folder;
-            } 
-            else
+                folder = fileDialog.FileName;
+                if (Directory.Exists(folder))
+                {
+                    return folder;
+                }
+                else
+                {
+                    return "Ups :c";
+                }
+            }
+            catch (Exception)
             {
                 return "Ups :c";
-            }         
+            }
+      
         }
 
         private void btnAddDir_Click(object sender, EventArgs e)
         {
             currentDirectory = SelectFolder();
             SetDirectory();
-            Updates();
+            tbxDir.Text = currentDirectory;
         }
 
         private void GetImagesFromDir()
@@ -82,15 +90,9 @@ namespace ImBadAtNames
                 if (IsImage(image.ToString()))
                 {
                     listImagesO.Add(image);
+                    listImagesF.Add(image);
                 }
             }
-
-            CopyListAtoB();
-        }
-
-        private void CopyListAtoB()
-        {
-            listImagesF = listImagesO;
         }
 
         private bool IsImage(string imagen)
@@ -137,17 +139,12 @@ namespace ImBadAtNames
         {
             try
             {
-                pbFrame.ImageLocation = listImagesO[FramePos];
+                pbFrame.ImageLocation = listImagesF[FramePos];
             }
             catch (Exception)
             {
 
             }
-
-        }
-
-        private void Form1_KeyPress(object sender, KeyPressEventArgs e)
-        {
 
         }
 
@@ -159,20 +156,78 @@ namespace ImBadAtNames
             return name;
         }
 
-        private void Updates()
+        private void Updates(int num)
         {
+            try
+            {
+                string nombre = albums[tab, num].Substring(albums[tab, num].LastIndexOf("\\") + num, (albums[tab, num].Length) - (albums[tab, num].LastIndexOf("\\") + num));
 
-            btnNum1.Text = albums[tab, 1].Substring(albums[tab, 1].LastIndexOf("\\") + 1, (albums[tab, 1].Length) - (albums[tab, 1].LastIndexOf("\\") + 1));
+                switch (num)
+                {
+                    case 0:
+                        lblNum0.Text = nombre;
+                        break;
 
+                    case 1:
+                        lblNum1.Text = nombre;
+                        break;
 
+                    case 2:
+                        lblNum2.Text = nombre;
+                        break;
+
+                    case 3:
+                        lblNum3.Text = nombre;
+                        break;
+
+                    case 4:
+                        lblNum4.Text = nombre;
+                        break;
+
+                    case 5:
+                        lblNum5.Text = nombre;
+                        break;
+
+                    case 6:
+                        lblNum6.Text = nombre;
+                        break;
+
+                    case 7:
+                        lblNum7.Text = nombre;
+                        break;
+
+                    case 8:
+                        lblNum8.Text = nombre;
+                        break;
+
+                    case 9:
+                        lblNum9.Text = nombre;
+                        break;
+
+                    case 10:
+                        lblNumDot.Text = nombre;
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            
+      
         }
 
         private void MoveImage(int album)
         {
             try
             {
-                listImagesF[FramePos] = listImagesO[FramePos];
-                File.Move(listImagesO[FramePos], albums[tab, album] + GetFilename());
+                string ruta = albums[tab, album] + GetFilename();
+
+                listImagesF[FramePos] = ruta;
+                File.Move(listImagesO[FramePos], ruta);
                 FramePos = FramePos + 1;
             }
             catch (Exception)
@@ -183,7 +238,7 @@ namespace ImBadAtNames
 
         }
 
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        private void Form1_KeyDown(object sender, KeyEventArgs e) //Teclas
         {
             switch (e.KeyCode)
             {
@@ -200,7 +255,7 @@ namespace ImBadAtNames
                         btnUndoActivatingAnimation.Start(btnUndo);
                     }
 
-                    if (FramePos > 0)
+                    if (FramePos > 0) //Accíón
                     {
                         FramePos = FramePos - 1;
                         if (listImagesRecycle.Count > 0)
@@ -218,7 +273,8 @@ namespace ImBadAtNames
                         }
                         else
                         {
-                            listImagesO[FramePos] = listImagesF[FramePos];
+                            File.Move(listImagesF[FramePos], listImagesO[FramePos]);
+                            listImagesF[FramePos] = listImagesO[FramePos];                            
                         }
 
                     }
@@ -251,7 +307,7 @@ namespace ImBadAtNames
                         btn1ActivatingAnimation = new Thread(FadingForeThread);
                         statesArray[1] = 0;
                         btn1ActivatingAnimation.Start(btnNum1);
-                    }                 
+                    }                                   
                     MoveImage(1);
                     break;
 
@@ -406,52 +462,118 @@ namespace ImBadAtNames
             }
         }
 
-        private void btnNum1_Click(object sender, EventArgs e)
+        private void AddAblumEvent(object sender, EventArgs e)
         {
-            Button btnPressed = (Button)sender;
-
-            switch (btnPressed.Name)
+            try
             {
-                case "btnNum1":
-                    CreateAlbum(1);
-                    Updates();
-                    break;
+                Button btnPressed = (Button)sender;
 
-                case "btnNum2":
-                    CreateAlbum(2);
-                    break;
+                switch (btnPressed.Name)
+                {
+                    case "btnNum1":
+                        CreateAlbum(1);
+                        Updates(1);
+                        break;
 
-                case "btnNum3":
-                    CreateAlbum(3);
-                    break;
+                    case "btnNum2":
+                        CreateAlbum(2);
+                        Updates(2);
+                        break;
 
-                case "btnNum4":
-                    CreateAlbum(4);
-                    break;
+                    case "btnNum3":
+                        CreateAlbum(3);
+                        Updates(3);
+                        break;
 
-                case "btnNum5":
-                    CreateAlbum(5);
-                    break;
-                
-                case "btnNum6":
-                    CreateAlbum(6);
-                    break;
+                    case "btnNum4":
+                        CreateAlbum(4);
+                        Updates(4);
+                        break;
 
-                case "btnNum7":
-                    CreateAlbum(7);
-                    break;
+                    case "btnNum5":
+                        CreateAlbum(5);
+                        Updates(5);
+                        break;
 
-                case "btnNum8":
-                    CreateAlbum(8);
-                    break;
+                    case "btnNum6":
+                        CreateAlbum(6);
+                        Updates(6);
+                        break;
 
-                case "btnNum9":
-                    CreateAlbum(9);
-                    break;
+                    case "btnNum7":
+                        CreateAlbum(7);
+                        Updates(7);
+                        break;
 
-                default:
-                    break;
+                    case "btnNum8":
+                        CreateAlbum(8);
+                        Updates(8);
+                        break;
+
+                    case "btnNum9":
+                        CreateAlbum(9);
+                        Updates(9);
+                        break;
+
+                    default:
+                        break;
+                }
             }
+            catch (Exception)
+            {
+                Label btnPressed = (Label)sender;
+
+                switch (btnPressed.Name)
+                {
+                    case "lblNum1":
+                        CreateAlbum(1);
+                        Updates(1);
+                        break;
+
+                    case "lblNum2":
+                        CreateAlbum(2);
+                        Updates(2);
+                        break;
+
+                    case "lblNum3":
+                        CreateAlbum(3);
+                        Updates(3);
+                        break;
+
+                    case "lblNum4":
+                        CreateAlbum(4);
+                        Updates(4);
+                        break;
+
+                    case "lblNum5":
+                        CreateAlbum(5);
+                        Updates(5);
+                        break;
+
+                    case "lblNum6":
+                        CreateAlbum(6);
+                        Updates(6);
+                        break;
+
+                    case "lblNum7":
+                        CreateAlbum(7);
+                        Updates(7);
+                        break;
+
+                    case "lblNum8":
+                        CreateAlbum(8);
+                        Updates(8);
+                        break;
+
+                    case "lblNum9":
+                        CreateAlbum(9);
+                        Updates(9);
+                        break;
+
+                    default:
+                        break;
+                }
+            }                  // Metodo para crear album
         }
 
         private void LoadSettings()
@@ -502,7 +624,6 @@ namespace ImBadAtNames
             btn0ActivatingAnimation = new Thread(FadingForeThread);
 
 
-
             if (SettingsExist())
             {
                 LoadSettings();
@@ -511,16 +632,6 @@ namespace ImBadAtNames
             {
                 CreateSettings();
             }
-        }
-
-        private void label6_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void btnTab3_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void FadingForeThread(object sender)
@@ -590,13 +701,13 @@ namespace ImBadAtNames
                 switch (statesArray[state])
                 {
                     case 0:
-                        if (x < 240)
+                        if (x < 255)
                         {
                             boton.ForeColor = Color.FromArgb(x, 35, 35);
-                            x++;
+                            x = x+2;
                             Thread.Sleep(1);
                         }
-                        else if (x >= 240)
+                        else if (x >= 255)
                         {
                             statesArray[state] = 1;
                         }
@@ -605,7 +716,7 @@ namespace ImBadAtNames
 
 
                     case 1:
-                        x = 240;
+                        x = 255;
                         statesArray[state] = 2;
                         break;
 
@@ -613,10 +724,10 @@ namespace ImBadAtNames
                         if (x > 35)
                         {
                             boton.ForeColor = Color.FromArgb(x, 35, 35);
-                            x--;
-                            Thread.Sleep(1);
+                            x = x - 1;
+                            Thread.Sleep(7);
                         }
-                        else if (x == 35)
+                        else if (x <= 35)
                         {
                             flag = false;
                             statesArray[state] = 0;
@@ -631,5 +742,466 @@ namespace ImBadAtNames
                 }
             }
         }
+
+       
+
+        private void LabelEnter(object sender, EventArgs e)
+        {
+            Label objeto = (Label)sender;
+
+            objeto.BackColor = Color.FromArgb(66, 66, 76);
+
+            switch (objeto.Name)
+            {
+                case "lblNum0":
+                    btnNum0.BackColor = botonIluminado;
+                    lblTag0.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag0":
+                    btnNum0.BackColor = botonIluminado;
+                    lblNum0.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum1":
+                    btnNum1.BackColor = botonIluminado;
+                    lblTag1.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag1":
+                    btnNum1.BackColor = botonIluminado;
+                    lblNum1.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum2":
+                    btnNum2.BackColor = botonIluminado;
+                    lblTag2.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag2":
+                    btnNum2.BackColor = botonIluminado;
+                    lblNum2.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum3":
+                    btnNum3.BackColor = botonIluminado;
+                    lblTag3.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag3":
+                    btnNum3.BackColor = botonIluminado;
+                    lblNum3.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum4":
+                    btnNum4.BackColor = botonIluminado;
+                    lblTag4.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag4":
+                    btnNum4.BackColor = botonIluminado;
+                    lblNum4.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum5":
+                    btnNum5.BackColor = botonIluminado;
+                    lblTag5.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag5":
+                    btnNum5.BackColor = botonIluminado;
+                    lblNum5.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum6":
+                    btnNum6.BackColor = botonIluminado;
+                    lblTag6.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag6":
+                    btnNum6.BackColor = botonIluminado;
+                    lblNum6.BackColor = botonIluminado;
+
+                    break;
+
+                case "lblNum7":
+                    btnNum7.BackColor = botonIluminado;
+                    lblTag7.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag7":
+                    btnNum7.BackColor = botonIluminado;
+                    lblNum7.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum8":
+                    btnNum8.BackColor = botonIluminado;
+                    lblTag8.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag8":
+                    btnNum8.BackColor = botonIluminado;
+                    lblNum8.BackColor = botonIluminado;
+                    break;
+
+                case "lblNum9":
+                    btnNum9.BackColor = botonIluminado;
+                    lblTag9.BackColor = botonIluminado;
+                    break;
+
+                case "lblTag9":
+                    btnNum9.BackColor = botonIluminado;
+                    lblNum9.BackColor = botonIluminado;
+                    break;
+
+                case "lblNumDot":
+                    btnNumDot.BackColor = botonIluminado;
+                    lblTagDot.BackColor = botonIluminado;
+                    break;
+
+                case "lblTagDot":
+                    btnNumDot.BackColor = botonIluminado;
+                    lblNumDot.BackColor = botonIluminado;
+                    break;
+
+                case "lblUndo":
+                    btnUndo.BackColor = botonIluminado;
+                    lblTagUndo.BackColor = botonIluminado;
+                    break;
+
+                case "lblTagUndo":
+                    btnUndo.BackColor = botonIluminado;
+                    lblUndo.BackColor = botonIluminado;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void LabelLeave(object sender, EventArgs e)
+        {
+            Label objeto = (Label)sender;
+
+            objeto.BackColor = Color.FromArgb(55, 55, 64);
+
+            switch (objeto.Name)
+            {
+                case "lblNum0":
+                    btnNum0.BackColor = botonApagado;
+                    lblTag0.BackColor = botonApagado;
+                    break;
+
+                case "lblTag0":
+                    btnNum0.BackColor = botonApagado;
+                    lblNum0.BackColor = botonApagado;
+                    break;
+
+                case "lblNum1":
+                    btnNum1.BackColor = botonApagado;
+                    lblTag1.BackColor = botonApagado;
+                    break;
+
+                case "lblTag1":
+                    btnNum1.BackColor = botonApagado;
+                    lblNum1.BackColor = botonApagado;
+                    break;
+
+                case "lblNum2":
+                    btnNum2.BackColor = botonApagado;
+                    lblTag2.BackColor = botonApagado;
+                    break;
+
+                case "lblTag2":
+                    btnNum2.BackColor = botonApagado;
+                    lblNum2.BackColor = botonApagado;
+                    break;
+
+                case "lblNum3":
+                    btnNum3.BackColor = botonApagado;
+                    lblTag3.BackColor = botonApagado;
+                    break;
+
+                case "lblTag3":
+                    btnNum3.BackColor = botonApagado;
+                    lblNum3.BackColor = botonApagado;
+                    break;
+
+                case "lblNum4":
+                    btnNum4.BackColor = botonApagado;
+                    lblTag4.BackColor = botonApagado;
+                    break;
+
+                case "lblTag4":
+                    btnNum4.BackColor = botonApagado;
+                    lblNum4.BackColor = botonApagado;
+                    break;
+
+                case "lblNum5":
+                    btnNum5.BackColor = botonApagado;
+                    lblTag5.BackColor = botonApagado;
+                    break;
+
+                case "lblTag5":
+                    btnNum5.BackColor = botonApagado;
+                    lblNum5.BackColor = botonApagado;
+                    break;
+
+                case "lblNum6":
+                    btnNum6.BackColor = botonApagado;
+                    lblTag6.BackColor = botonApagado;
+                    break;
+
+                case "lblTag6":
+                    btnNum6.BackColor = botonApagado;
+                    lblNum6.BackColor = botonApagado;
+
+                    break;
+
+                case "lblNum7":
+                    btnNum7.BackColor = botonApagado;
+                    lblTag7.BackColor = botonApagado;
+                    break;
+
+                case "lblTag7":
+                    btnNum7.BackColor = botonApagado;
+                    lblNum7.BackColor = botonApagado;
+                    break;
+
+                case "lblNum8":
+                    btnNum8.BackColor = botonApagado;
+                    lblTag8.BackColor = botonApagado;
+                    break;
+
+                case "lblTag8":
+                    btnNum8.BackColor = botonApagado;
+                    lblNum8.BackColor = botonApagado;
+                    break;
+
+                case "lblNum9":
+                    btnNum9.BackColor = botonApagado;
+                    lblTag9.BackColor = botonApagado;
+                    break;
+
+                case "lblTag9":
+                    btnNum9.BackColor = botonApagado;
+                    lblNum9.BackColor = botonApagado;
+                    break;
+
+                case "lblNumDot":
+                    btnNumDot.BackColor = botonApagado;
+                    lblTagDot.BackColor = botonApagado;
+                    break;
+
+                case "lblTagDot":
+                    btnNumDot.BackColor = botonApagado;
+                    lblNumDot.BackColor = botonApagado;
+                    break;
+
+                case "lblUndo":
+                    btnUndo.BackColor = botonApagado;
+                    lblTagUndo.BackColor = botonApagado;
+                    break;
+
+                case "lblTagUndo":
+                    btnUndo.BackColor = botonApagado;
+                    lblUndo.BackColor = botonApagado;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void ButtonLeave(object sender, EventArgs e)
+        {
+            Button boton = (Button)sender;
+
+            switch (boton.Name)
+            {
+                case "btnNum0":
+                    lblNum0.BackColor = botonApagado;
+                    lblTag0.BackColor = botonApagado;
+                    break;
+
+                case "btnNum1":
+                    lblNum1.BackColor = botonApagado;
+                    lblTag1.BackColor = botonApagado;
+                    break;
+
+                case "btnNum2":
+                    lblNum2.BackColor = botonApagado;
+                    lblTag2.BackColor = botonApagado;
+                    break;
+
+                case "btnNum3":
+                    lblNum3.BackColor = botonApagado;
+                    lblTag3.BackColor = botonApagado;
+                    break;
+
+                case "btnNum4":
+                    lblNum4.BackColor = botonApagado;
+                    lblTag4.BackColor = botonApagado;
+                    break;
+
+                case "btnNum5":
+                    lblNum5.BackColor = botonApagado;
+                    lblTag5.BackColor = botonApagado;
+                    break;
+
+                case "btnNum6":
+                    lblNum6.BackColor = botonApagado;
+                    lblTag6.BackColor = botonApagado;
+                    break;
+
+                case "btnNum7":
+                    lblNum7.BackColor = botonApagado;
+                    lblTag7.BackColor = botonApagado;
+                    break;
+
+                case "btnNum8":
+                    lblNum8.BackColor = botonApagado;
+                    lblTag8.BackColor = botonApagado;
+                    break;
+
+                case "btnNum9":
+                    lblNum9.BackColor = botonApagado;
+                    lblTag9.BackColor = botonApagado;
+                    break;
+
+                case "btnNumDot":
+                    lblNumDot.BackColor = botonApagado;
+                    lblTagDot.BackColor = botonApagado;
+                    break;
+
+                case "btnUndo":
+                    lblUndo.BackColor = botonApagado;
+                    lblTagUndo.BackColor = botonApagado;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void ButtonEnter(object sender, EventArgs e)
+        {
+            Button boton = (Button)sender;
+
+            switch (boton.Name)
+            {
+                case "btnNum0":
+                    lblNum0.BackColor = botonIluminado;
+                    lblTag0.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum1":
+                    lblNum1.BackColor = botonIluminado;
+                    lblTag1.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum2":
+                    lblNum2.BackColor = botonIluminado;
+                    lblTag2.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum3":
+                    lblNum3.BackColor = botonIluminado;
+                    lblTag3.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum4":
+                    lblNum4.BackColor = botonIluminado;
+                    lblTag4.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum5":
+                    lblNum5.BackColor = botonIluminado;
+                    lblTag5.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum6":
+                    lblNum6.BackColor = botonIluminado;
+                    lblTag6.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum7":
+                    lblNum7.BackColor = botonIluminado;
+                    lblTag7.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum8":
+                    lblNum8.BackColor = botonIluminado;
+                    lblTag8.BackColor = botonIluminado;
+                    break;
+
+                case "btnNum9":
+                    lblNum9.BackColor = botonIluminado;
+                    lblTag9.BackColor = botonIluminado;
+                    break;
+
+                case "btnNumDot":
+                    lblNumDot.BackColor = botonIluminado;
+                    lblTagDot.BackColor = botonIluminado;
+                    break;
+
+                case "btnUndo":
+                    lblUndo.BackColor = botonIluminado;
+                    lblTagUndo.BackColor = botonIluminado;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void btnCerrar_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void btnMinimizar_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+
+        //private void FrameAnimation(object sender)
+        //{
+        //    CheckForIllegalCrossThreadCalls = false;
+
+
+        //    Point location = pb.Location;
+        //    pb.Location = pbFrame.Location;
+        //    int y = location.Y;
+        //    int z = 600;
+
+
+        //    for (int x = pb.Location.X; x < location.X; x = x+20)
+        //    {
+        //        z = z - 20;
+        //        y = y + 5;
+        //        pb.Location = new Point(x, y);
+        //        pb.Size = new Size(z, z);
+        //        Thread.Sleep(1);
+        //    }
+        //    pb.Visible = false;
+        //}
+
+        //private void button1_Click_1(object sender, EventArgs e)
+        //{
+        //    Button boton = (Button)sender;
+
+        //    pb.Visible = false;
+        //    pb.Location = boton.Location;
+        //    pb.Size = new Size(600, 600);
+        //    pb.Image = Image.FromFile(listImagesF[FramePos - 1]);
+        //    pb.SizeMode = PictureBoxSizeMode.Zoom;
+
+        //    pb.BringToFront();
+
+        //    Thread pbAnimado = new Thread(FrameAnimation);
+        //    pbAnimado.Start(pb);
+        //}
     }
 }
